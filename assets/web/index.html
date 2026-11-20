@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flood Guardian</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.min.js",
+        "three/addons/": "./vendor/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div id="flash"></div>
+
+  <div id="loading">
+    <div class="loading-title">FLOOD GUARDIAN</div>
+    <div class="loading-sub">Building the village...</div>
+  </div>
+
+  <!-- top left: episode stats -->
+  <div class="panel" id="stats">
+    <div class="stat"><span id="status-dot" class="dot"></span><div><label>Episode</label><b id="episode">1</b></div></div>
+    <div class="stat"><div><label>Step</label><b id="step">0 / 100</b></div></div>
+    <div class="stat"><div><label>Location</label><b id="location">6, 8</b></div></div>
+    <div class="stat"><div><label>On land</label><b id="animals">0</b></div></div>
+    <div class="stat"><div><label>Crops</label><b id="crops">8 / 8</b></div></div>
+  </div>
+  <div id="title">
+    <div class="title-main">Flood Guardian</div>
+    <div class="title-sub">Eastern Province, Rwanda - flood season</div>
+  </div>
+
+  <!-- top centre: current action -->
+  <div class="panel" id="action-card">
+    <label>Current action</label>
+    <div id="action"><svg id="action-icon" viewBox="0 0 24 24"></svg><span id="action-name">WAITING</span></div>
+  </div>
+
+  <!-- top right: minimap -->
+  <div class="panel" id="map-panel">
+    <canvas id="minimap" width="200" height="200"></canvas>
+    <div class="legend">
+      <span><i style="background:#3b82f6"></i>Guardian</span>
+      <span><i style="background:#4d7c0f"></i>Crocodile</span>
+      <span><i style="background:#a78bfa"></i>Hippo</span>
+      <span><i style="background:#facc15"></i>Fleeing</span>
+    </div>
+  </div>
+
+  <!-- right: event feed -->
+  <div id="feed"></div>
+
+  <!-- bottom left: controls -->
+  <div class="panel" id="controls">
+    <div class="panel-head">Debug controls</div>
+    <label>Agent</label>
+    <div class="row">
+      <select id="agent"></select>
+      <span id="agent-badge" class="badge">Loaded</span>
+    </div>
+    <div class="row">
+      <button id="btn-start">Start</button>
+      <button id="btn-reset">Reset</button>
+    </div>
+    <button id="btn-step" class="wide">Single step</button>
+    <button id="btn-pause" class="wide primary">Pause simulation</button>
+    <label>Speed <span id="speed-value">2</span> steps/s</label>
+    <input id="speed" type="range" min="0.5" max="10" step="0.5" value="2">
+    <label>Camera views</label>
+    <div class="cams">
+      <button data-cam="0"><kbd>1</kbd>Chase</button>
+      <button data-cam="1"><kbd>2</kbd>Guardian</button>
+      <button data-cam="2"><kbd>3</kbd>Top</button>
+      <button data-cam="3"><kbd>4</kbd>Cinematic</button>
+      <button data-cam="4"><kbd>5</kbd>Free</button>
+    </div>
+    <div class="keys">Arrows / WASD move, Space scares, R resets, P pauses</div>
+  </div>
+
+  <!-- bottom right: reward and season -->
+  <button id="sound" class="panel" title="Sound (M)"><svg viewBox="0 0 24 24"><path id="sound-path"/></svg></button>
+  <div id="cards">
+    <div class="panel card">
+      <label>Reward</label>
+      <b id="reward">+0.0</b>
+      <div class="bar"><div id="reward-bar"></div></div>
+      <small>Total <span id="total">0.0</span></small>
+    </div>
+    <div class="panel card">
+      <label>Season</label>
+      <b id="season">0%</b>
+      <div class="bar"><div id="season-bar"></div></div>
+      <small id="season-note">survive to win</small>
+    </div>
+  </div>
+
+  <div id="banner"><div id="banner-title"></div><div id="banner-sub"></div></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
