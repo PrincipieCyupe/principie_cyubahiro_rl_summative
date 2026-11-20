@@ -1,2 +1,8 @@
 # Created uv virtual environment
 .venv/
+
+# Python cache
+__pycache__/
+
+# Blender source files, only the converted .glb files in assets/meshes are used
+*.blend
