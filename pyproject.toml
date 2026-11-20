@@ -8,6 +8,7 @@ dependencies = [
     "matplotlib>=3.11.2",
     "numpy>=2.4.6",
     "pygame>=2.6.1",
+    "pyttsx3>=2.99",
     "tensordict>=0.15.6",
     "torch>=2.15.0",
     "torchrl>=0.15.0",
