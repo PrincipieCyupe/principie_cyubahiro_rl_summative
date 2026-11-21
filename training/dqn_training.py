@@ -95,11 +95,17 @@ def main():
     history = []
     episode_return = 0.0
     last_loss = 0.0
+    frames = 0
+    report_every = 25  # print a progress line every this many finished episodes
+    next_report = report_every
     updates_per_batch = max(1, frames_per_batch // args.train_every)
+
+    print(f"Training DQN experiment {args.exp} for {args.total_steps} steps on {device}")
 
     for data in collector:
         batch = data.reshape(-1)
         buffer.extend(batch)
+        frames += batch.numel()
 
         rewards = batch["next", "reward"].squeeze(-1).tolist()
         dones = batch["next", "done"].squeeze(-1).tolist()
@@ -121,6 +127,14 @@ def main():
                 last_loss = float(loss.item())
 
         exploration.step(batch.numel())
+
+        if len(history) >= next_report:
+            recent = [row["return"] for row in history[-report_every:]]
+            avg = sum(recent) / len(recent)
+            print(f"  step {frames}/{args.total_steps}  episodes {len(history)}  "
+                  f"recent avg reward {avg:.1f}  epsilon {float(exploration.eps):.2f}  loss {last_loss:.3f}",
+                  flush=True)
+            next_report += report_every
 
     collector.shutdown()
 
