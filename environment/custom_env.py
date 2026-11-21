@@ -22,7 +22,7 @@ REWARD_BREACH = -20.0     # the village is lost: an animal reached a house or th
 GRID_SIZE = 12
 MAX_STEPS = 100           # one flood season
 ANIMALS = 3               # the same three animals live in the river all season
-MAX_ON_LAND = 2           # at most this many are out of the water at the same time
+MAX_ON_LAND = 3           # at most this many are out of the water at the same time
 REST_MIN = 8              # after being chased back, an animal rests in the river
 REST_MAX = 20             # for REST_MIN to REST_MAX steps before it comes out again
 MIN_CROPS = 5             # the harvest is lost (game over) once half the crops (4 of 8) are eaten
@@ -162,7 +162,7 @@ class FloodGuardianEnv(gym.Env):
         self.status = "running"
         self.events = []
 
-        # all animals start in the river: the first ones come out at once, the others a bit later
+        # all animals start in the river: the first MAX_ON_LAND come out at once, any others a bit later
         self.resting = []
         for i in range(ANIMALS):
             kind = "crocodile" if self.np_random.random() < 0.5 else "hippo"
