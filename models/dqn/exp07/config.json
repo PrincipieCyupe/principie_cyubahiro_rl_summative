@@ -1,0 +1,20 @@
+{
+  "algo": "dqn",
+  "exp": 7,
+  "lr": 0.001,
+  "gamma": 0.995,
+  "batch_size": 64,
+  "buffer_size": 10000,
+  "eps_start": 1.0,
+  "eps_end": 0.05,
+  "eps_decay": 20000,
+  "target_update": 500,
+  "total_steps": 60000,
+  "learning_starts": 1000,
+  "train_every": 4,
+  "hidden": 128,
+  "seed": 42,
+  "episodes": 1108,
+  "greedy_avg_reward": 90.35,
+  "win_rate": 0.95
+}

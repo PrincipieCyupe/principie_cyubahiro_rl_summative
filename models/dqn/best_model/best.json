@@ -1,0 +1,7 @@
+{
+  "algo": "dqn",
+  "experiment": "exp10",
+  "win_rate": 1.0,
+  "greedy_avg_reward": 98.43,
+  "episodes": 30
+}

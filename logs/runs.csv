@@ -1,0 +1,10 @@
+dqn,exp01,episodes=1113,greedy_avg=82.57,win_rate=0.85
+dqn,exp02,episodes=1165,greedy_avg=77.85,win_rate=0.85
+dqn,exp03,episodes=1263,greedy_avg=74.74,win_rate=0.90
+dqn,exp04,episodes=1138,greedy_avg=92.95,win_rate=0.95
+dqn,exp05,episodes=1158,greedy_avg=71.84,win_rate=0.70
+dqn,exp06,episodes=962,greedy_avg=85.74,win_rate=0.90
+dqn,exp07,episodes=1108,greedy_avg=90.35,win_rate=0.95
+dqn,exp08,episodes=911,greedy_avg=78.15,win_rate=0.90
+dqn,exp09,episodes=1391,greedy_avg=20.70,win_rate=0.20
+dqn,exp10,episodes=1243,greedy_avg=94.61,win_rate=0.95
