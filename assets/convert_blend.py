@@ -1,14 +1,4 @@
-"""Turns Blender files (.blend) into .glb files that the 3D browser view can load.
-
-Browsers cannot open .blend files, so the crocodile and hippo models have to be
-converted once. Put the .blend files anywhere inside assets/ and run:
-
-    uv run --with bpy assets/convert_blend.py
-
-"--with bpy" borrows Blender's Python module for this one command only, it is not
-added to the project. The results are saved as assets/meshes/crocodile.glb and
-assets/meshes/hippo.glb (a file is named after the animal in its file name).
-"""
+"""Turns Blender files (.blend) into .glb files that the 3D browser view can load."""
 
 import sys
 from pathlib import Path
