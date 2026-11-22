@@ -1,10 +1,4 @@
-"""Makes the demo sounds once: spoken move cues (offline Windows text to speech) and a scare whistle.
-
-    uv run assets/make_voice.py
-
-The files go into assets/audio. You can swap any of them for your own recordings,
-just keep the names: up.wav, down.wav, left.wav, right.wav, scare.wav.
-"""
+"""Makes the demo sounds once: spoken move cues (offline Windows text to speech) and a scare whistle."""
 
 import wave
 from pathlib import Path
