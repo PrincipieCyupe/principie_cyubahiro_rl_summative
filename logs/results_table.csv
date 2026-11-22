@@ -1,11 +1,21 @@
-algo,exp,lr,gamma,batch_size,eps_decay,target_update,episodes,greedy_avg_reward,win_rate
-dqn,1,0.001,0.99,64,20000,500,1113,82.57,0.85
-dqn,2,0.005,0.99,64,20000,500,1165,77.85,0.85
-dqn,3,0.00025,0.99,64,20000,500,1263,74.74,0.9
-dqn,4,0.001,0.995,64,20000,500,1138,92.95,0.95
-dqn,5,0.001,0.95,64,20000,500,1158,71.84,0.7
-dqn,6,0.001,0.995,128,20000,500,962,85.74,0.9
-dqn,7,0.001,0.995,64,20000,500,1108,90.35,0.95
-dqn,8,0.001,0.995,64,20000,100,911,78.15,0.9
-dqn,9,0.001,0.995,64,20000,2000,1391,20.7,0.2
-dqn,10,0.001,0.995,64,40000,500,1243,94.61,0.95
+algo,exp,lr,gamma,episodes,greedy_avg_reward,win_rate,settings
+dqn,1,0.001,0.99,1113,82.57,0.85,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,2,0.005,0.99,1165,77.85,0.85,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,3,0.00025,0.99,1263,74.74,0.9,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,4,0.001,0.995,1138,92.95,0.95,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,5,0.001,0.95,1158,71.84,0.7,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,6,0.001,0.995,962,85.74,0.9,batch_size=128 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,7,0.001,0.995,1108,90.35,0.95,batch_size=64 buffer_size=10000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,8,0.001,0.995,911,78.15,0.9,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=100 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,9,0.001,0.995,1391,20.7,0.2,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=20000 target_update=2000 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+dqn,10,0.001,0.995,1243,94.61,0.95,batch_size=64 buffer_size=50000 eps_start=1.0 eps_end=0.05 eps_decay=40000 target_update=500 total_steps=60000 learning_starts=1000 train_every=4 hidden=128
+reinforce,1,0.001,0.99,4766,-22.15,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.01 total_steps=60000 hidden=128
+reinforce,2,0.005,0.99,4766,-22.15,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.01 total_steps=60000 hidden=128
+reinforce,3,0.00025,0.99,4766,-22.15,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.01 total_steps=60000 hidden=128
+reinforce,4,0.001,0.995,4766,-22.15,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.01 total_steps=60000 hidden=128
+reinforce,5,0.001,0.95,4766,-40.39,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.01 total_steps=60000 hidden=128
+reinforce,6,0.001,0.997,4766,-22.15,0.0,frames_per_batch=2000 lmbda=1.0 entropy=0.01 total_steps=60000 hidden=128
+reinforce,7,0.001,0.99,4766,-22.15,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.05 total_steps=60000 hidden=128
+reinforce,8,0.001,0.99,4766,-22.15,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.0 total_steps=60000 hidden=128
+reinforce,9,0.001,0.99,4766,-40.9,0.0,frames_per_batch=1000 lmbda=1.0 entropy=0.01 total_steps=60000 hidden=256
+reinforce,10,0.001,0.99,4766,-40.39,0.0,frames_per_batch=1000 lmbda=0.95 entropy=0.01 total_steps=60000 hidden=128

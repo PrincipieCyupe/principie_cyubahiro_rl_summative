@@ -8,3 +8,13 @@ dqn,exp07,episodes=1108,greedy_avg=90.35,win_rate=0.95
 dqn,exp08,episodes=911,greedy_avg=78.15,win_rate=0.90
 dqn,exp09,episodes=1391,greedy_avg=20.70,win_rate=0.20
 dqn,exp10,episodes=1243,greedy_avg=94.61,win_rate=0.95
+reinforce,exp01,episodes=4766,greedy_avg=-22.15,win_rate=0.00
+reinforce,exp02,episodes=4766,greedy_avg=-22.15,win_rate=0.00
+reinforce,exp03,episodes=4766,greedy_avg=-22.15,win_rate=0.00
+reinforce,exp04,episodes=4766,greedy_avg=-22.15,win_rate=0.00
+reinforce,exp05,episodes=4766,greedy_avg=-40.39,win_rate=0.00
+reinforce,exp06,episodes=4766,greedy_avg=-22.15,win_rate=0.00
+reinforce,exp07,episodes=4766,greedy_avg=-22.15,win_rate=0.00
+reinforce,exp08,episodes=4766,greedy_avg=-22.15,win_rate=0.00
+reinforce,exp09,episodes=4766,greedy_avg=-40.90,win_rate=0.00
+reinforce,exp10,episodes=4766,greedy_avg=-40.39,win_rate=0.00
