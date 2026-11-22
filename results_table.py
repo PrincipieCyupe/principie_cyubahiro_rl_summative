@@ -1,8 +1,9 @@
 """Build one comparison table from every experiment of every algorithm.
 
-It reads the config.json that each run saved, collects the hyperparameters and
-the greedy scores, writes logs/results_table.csv, and prints a markdown table.
-This is the table for the report, made by a script so nothing is typed by hand.
+It reads the config.json that each run saved. A few columns are shared by all
+algorithms, and the method specific settings (like target_update for DQN or
+entropy for the policy methods) go in a single settings column so nothing is
+lost. Writes logs/results_table.csv and prints a markdown table.
 
 Run it:
     uv run python results_table.py
@@ -14,8 +15,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 ALGOS = ["dqn", "reinforce", "ppo", "ac"]
-COLUMNS = ["algo", "exp", "lr", "gamma", "batch_size", "eps_decay", "target_update",
-           "episodes", "greedy_avg_reward", "win_rate"]
+
+# shown as their own columns, in this order
+CORE = ["algo", "exp", "lr", "gamma", "episodes", "greedy_avg_reward", "win_rate"]
+# never shown in the settings column
+HIDE = set(CORE) | {"seed"}
+COLUMNS = CORE + ["settings"]
+
+
+def settings_text(config):
+    extras = [f"{k}={config[k]}" for k in config if k not in HIDE]
+    return " ".join(extras)
 
 
 def collect_rows():
@@ -29,7 +39,9 @@ def collect_rows():
             if not config_file.is_file():
                 continue
             config = json.loads(config_file.read_text())
-            rows.append({col: config.get(col, "") for col in COLUMNS})
+            row = {col: config.get(col, "") for col in CORE}
+            row["settings"] = settings_text(config)
+            rows.append(row)
     return rows
 
 
