@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 
 import matplotlib
-matplotlib.use("Agg") 
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 import gymnasium as gym
@@ -98,8 +98,9 @@ def save_experiment(algo, exp, net, history, config, greedy_avg, win_rate):
 
     torch.save(net.state_dict(), folder / MODEL_FILE)
 
+    fieldnames = list(history[0].keys()) if history else ["episode", "return", "loss"]
     with open(folder / "history.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["episode", "return", "epsilon", "loss"])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(history)
 
