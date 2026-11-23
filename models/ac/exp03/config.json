@@ -1,0 +1,15 @@
+{
+  "algo": "ac",
+  "exp": 3,
+  "lr": 0.0002,
+  "gamma": 0.99,
+  "frames_per_batch": 500,
+  "lmbda": 0.95,
+  "entropy": 0.01,
+  "total_steps": 60000,
+  "hidden": 128,
+  "seed": 42,
+  "episodes": 4766,
+  "greedy_avg_reward": -22.15,
+  "win_rate": 0.0
+}

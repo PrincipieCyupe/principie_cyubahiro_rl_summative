@@ -1,0 +1,17 @@
+{
+  "algo": "ppo",
+  "exp": 7,
+  "lr": 0.0003,
+  "gamma": 0.99,
+  "clip": 0.2,
+  "epochs": 2,
+  "frames_per_batch": 2000,
+  "lmbda": 0.95,
+  "entropy": 0.01,
+  "total_steps": 60000,
+  "hidden": 128,
+  "seed": 42,
+  "episodes": 4766,
+  "greedy_avg_reward": -23.73,
+  "win_rate": 0.0
+}

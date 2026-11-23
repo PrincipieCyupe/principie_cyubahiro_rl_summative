@@ -1,0 +1,7 @@
+{
+  "algo": "ppo",
+  "experiment": "exp03",
+  "win_rate": 0.033,
+  "greedy_avg_reward": -20.38,
+  "episodes": 30
+}
