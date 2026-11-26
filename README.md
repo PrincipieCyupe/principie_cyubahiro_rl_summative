@@ -4,7 +4,7 @@ A custom reinforcement learning environment and four trained agents, built for t
 Based Reinforcement Learning summative. The project trains DQN, REINFORCE, A2C and PPO on the
 same game, compares them, and lets you watch any of the trained agents play in a 3D or 2D view.
 
-[![Watch the video](https://img.shields.io/badge/Watch-video_demo-CE0E2F?style=for-the-badge)](REPLACE_WITH_YOUR_VIDEO_LINK)
+[![Watch the video](https://img.shields.io/badge/Watch-video_demo-CE0E2F?style=for-the-badge)](https://youtu.be/cIg7Uhnmsw0)
 
 ![Flood Guardian, 3D view](docs/screenshots/gameplay_3d.gif)
 
@@ -57,6 +57,7 @@ principie_cyubahiro_rl_summative/
   results_table.py         builds the comparison table
   plots.py                 draws the comparison charts for the report
   main.py                  the demo: watch an agent play in 2D or 3D
+  play.py                  play the best trained agent straight away
   assets/                  the 3D web page, sounds and meshes
   tests/steps_check.py     a quick check of what is done and what is left
 ```
@@ -74,7 +75,16 @@ every command is run with `uv run`, so you never activate a virtual environment 
 
 ## Watch an agent play
 
-The demo opens a 3D view in the browser and prints every step in the terminal.
+The quickest way is `play.py`, which plays the best trained agent:
+
+```
+uv run play.py                     the best DQN agent, in the browser
+uv run play.py --algo ppo          the best model of another algorithm
+uv run play.py --view 2d           the 2D window instead of the browser
+```
+
+For more control, `main.py` opens the same 3D view but also loads random, rule based and
+keyboard, and prints every step in the terminal.
 
 ```
 uv run main.py                     all agents are loaded, random plays first
@@ -101,6 +111,54 @@ uv run main.py --model fast=models/dqn/exp10
 
 Each one you add shows up in the picker too. Keys in the 3D view: arrows or WASD move, space
 scares, R resets, P pauses, and the number keys switch camera.
+
+## How it fits together
+
+The project is a simple pipeline, so any saved agent can be rebuilt and watched later.
+
+- Serialization. Each trainer saves its network as a `model.pth` state dict, next to a
+  `config.json` that records the hidden size and the evaluation scores. `select_best.py`
+  replays every experiment with no exploration, ranks them by win rate and then average
+  reward, and copies the winner into `models/<algo>/best_model/`. `main.py` and `play.py`
+  rebuild the network from `config.json` and load the weights with `load_state_dict`, so the
+  shapes always match.
+- API. The 3D view runs a small local HTTP server with a JSON API that the web page calls:
+  `GET /api/state` returns the current world, `POST /api/step` takes one step, `POST /api/reset`
+  starts a new season, and `POST /api/agent` switches the agent. The Three.js front end in
+  `assets/` reads these, so the browser and the Python environment stay in step.
+- Terminal. Every step is also printed in the terminal (action, reward, running total and
+  status), so the GUI and the terminal always tell the same story.
+
+## Using the trained agent from other apps
+
+While the viewer is running (`uv run play.py` or `uv run main.py`), the same server also serves
+the trained agent over HTTP, so a dispatch dashboard or a mobile app could ask it what to do next:
+
+The easiest way is the Swagger page. With the server running, open **http://localhost:8000/docs**,
+expand `POST /api/act`, click **Try it out** and then **Execute**, and you get the agent's action back.
+
+![Trying the agent API at /docs](docs/screenshots/api.gif)
+
+| Endpoint | Use |
+|---|---|
+| `GET /docs` | interactive Swagger page to try the API in the browser |
+| `POST /api/act` | send the 14 observation numbers, get the next action back |
+| `GET /api/act` | help: how to call it, with an example body |
+| `GET /api/health` | check the server is up and which model is loaded |
+
+Or call it from any language:
+
+```bash
+curl -X POST http://localhost:8000/api/act -H "Content-Type: application/json" \
+     -d '{"observation": [0.5, 0.9, 0.1, -0.1, 0.3, 0.2, 0.1, 0.5, 0, 0, 1, 0.4, 0.3, 0.2]}'
+```
+
+```json
+{"action": 4, "action_name": "scare", "scores": [-3.88, -2.26, -2.76, 1.55, 4.30]}
+```
+
+It serves the best model (DQN), rebuilt from its saved `model.pth` and `config.json`. (The Swagger
+page loads its assets from a CDN, so `/docs` needs internet; the `curl` call works offline.)
 
 ## The environment
 
@@ -150,6 +208,8 @@ observation is built by `observation()` in `custom_env.py` and refreshed after e
 The guardian is not paid for standing near the village. It earns points only by chasing animals
 away, and is punished when it fails, so it has to learn that getting close to the animals is what
 pays. The step cost keeps it from wasting time.
+
+![Rewards structure](docs/report/reward_structure.png)
 
 ### Start and end of a season
 
