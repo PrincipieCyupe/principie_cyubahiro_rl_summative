@@ -64,7 +64,20 @@ principie_cyubahiro_rl_summative/
 
 ## Setup
 
-The project uses uv and Python 3.11. From the project folder:
+1. First clone the repository to your local machine
+
+```
+git clone https://github.com/PrincipieCyupe/principie_cyubahiro_rl_summative
+
+```
+2. Move inside the repository root directory
+
+```
+cd principie_cyubahiro_rl_summative
+
+```
+
+3. The project uses uv and Python 3.11. From the project folder:
 
 ```
 uv sync
