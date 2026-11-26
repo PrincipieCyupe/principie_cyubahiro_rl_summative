@@ -266,6 +266,13 @@ def run_2d(session, mode, speed=2.0, mute=False):
 #   POST /api/step   {action}  one step; action null means "let the selected agent choose"
 #   POST /api/reset            start a new episode
 #   POST /api/agent  {name}    switch the agent that plays
+#
+# The same server also answers a small inference API, so other apps can use the trained agent:
+#   GET  /api/health              is the server up and which model is loaded
+#   GET  /api/act                 help: how to call POST /api/act
+#   POST /api/act  {observation}  send the 14 observation numbers, get the next action back
+#   GET  /docs                    a Swagger page to try POST /api/act in the browser
+#   GET  /openapi.json            the OpenAPI description the Swagger page reads
 
 CONTENT_TYPES = {
     ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
@@ -301,6 +308,88 @@ def web_state(session):
     }
 
 
+def load_best_policy(obs_size, num_actions):
+    """Load the strongest trained model so other apps can ask it for an action.
+
+    Returns (net, name), or (None, None) if nothing has been trained yet.
+    """
+    import json
+    import torch
+    from training.common import qnetwork
+
+    root = Path(__file__).resolve().parent.parent
+    for algo in ("dqn", "ppo", "reinforce", "ac"):
+        model = root / "models" / algo / "best_model" / "model.pth"
+        if not model.exists():
+            continue
+        hidden = 128
+        config = model.parent / "config.json"
+        if config.exists():
+            hidden = json.loads(config.read_text()).get("hidden", 128)
+        net = qnetwork(obs_size, num_actions, hidden=(hidden, hidden))
+        net.load_state_dict(torch.load(model, map_location="cpu"))
+        net.eval()
+        return net, algo
+    return None, None
+
+
+def policy_action(net, observation):
+    """Run the network on one observation and return the best action and the raw scores."""
+    import torch
+
+    with torch.no_grad():
+        values = net(torch.as_tensor(observation, dtype=torch.float32).unsqueeze(0))
+    scores = [round(float(v), 4) for v in values.squeeze(0).tolist()]
+    action = max(range(len(scores)), key=lambda i: scores[i])
+    return action, scores
+
+
+def openapi_spec(obs_size):
+    """A small OpenAPI description of the agent API, used by the Swagger page at /docs."""
+    example = {"observation": [0.5, 0.9, 0.1, -0.1, 0.3, 0.2, 0.1, 0.5, 0, 0, 1, 0.4, 0.3, 0.2]}
+    return {
+        "openapi": "3.0.0",
+        "info": {"title": "Flood Guardian agent API", "version": "1.0.0",
+                 "description": f"Ask the trained Flood Guardian agent for its next action. "
+                                f"Send {obs_size} observation numbers to POST /api/act."},
+        "paths": {
+            "/api/act": {
+                "post": {
+                    "summary": "Get the next action for one observation",
+                    "requestBody": {"required": True, "content": {"application/json": {
+                        "schema": {"type": "object", "required": ["observation"], "properties": {
+                            "observation": {"type": "array", "items": {"type": "number"},
+                                            "minItems": obs_size, "maxItems": obs_size}}},
+                        "example": example}}},
+                    "responses": {"200": {"description": "the chosen action", "content": {"application/json": {
+                        "example": {"action": 4, "action_name": "scare",
+                                    "scores": [-3.88, -2.26, -2.76, 1.55, 4.30]}}}}},
+                }
+            },
+            "/api/health": {"get": {"summary": "Is the server up and which model is loaded",
+                                    "responses": {"200": {"description": "ok"}}}},
+        },
+    }
+
+
+SWAGGER_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flood Guardian API</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger"></div>
+  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({ url: "/openapi.json", dom_id: "#swagger" });
+  </script>
+</body>
+</html>
+"""
+
+
 class WebHandler(BaseHTTPRequestHandler):
     """Serves the page and its files, and answers the /api calls."""
 
@@ -309,6 +398,18 @@ class WebHandler(BaseHTTPRequestHandler):
         if path == "/api/state":
             with self.server.lock:
                 self.send_json(web_state(self.server.session))
+        elif path == "/api/health":
+            self.send_json({"status": "ok", "model": self.server.policy_algo,
+                            "observation_size": self.server.obs_size, "actions": list(ACTION_NAMES)})
+        elif path == "/api/act":
+            self.send_json({"how_to": f"POST a body {{\"observation\": [...]}} of {self.server.obs_size} "
+                                      "numbers to get the next action. Open /docs for the Swagger page",
+                            "actions": list(ACTION_NAMES),
+                            "example": {"observation": [0.0] * self.server.obs_size}})
+        elif path == "/docs":
+            self.send_html(SWAGGER_HTML)
+        elif path == "/openapi.json":
+            self.send_json(openapi_spec(self.server.obs_size))
         elif path.startswith("/audio/"):
             self.send_file(AUDIO_DIR, path[len("/audio/"):])
         elif path.startswith("/meshes/"):
@@ -319,8 +420,11 @@ class WebHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length) or b"{}")
-        session = self.server.session
         path = urlparse(self.path).path
+        if path == "/api/act":
+            self.handle_act(body)
+            return
+        session = self.server.session
         with self.server.lock:
             if path == "/api/step":
                 if not session.done:
@@ -338,10 +442,31 @@ class WebHandler(BaseHTTPRequestHandler):
                 return
             self.send_json(web_state(session))
 
+    def handle_act(self, body):
+        net = self.server.policy
+        if net is None:
+            self.send_json({"error": "no trained model found; train the agents and run select_best.py first"})
+            return
+        observation = body.get("observation")
+        size = self.server.obs_size
+        if not isinstance(observation, list) or len(observation) != size:
+            self.send_json({"error": f"send 'observation' as a list of {size} numbers"})
+            return
+        action, scores = policy_action(net, observation)
+        self.send_json({"action": action, "action_name": ACTION_NAMES[action], "scores": scores})
+
     def send_json(self, data):
         payload = json.dumps(data).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def send_html(self, html):
+        payload = html.encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html")
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
@@ -369,11 +494,17 @@ def run_3d(session, mode, speed=2.0, mute=False, port=8000, open_browser=True):
     server = ThreadingHTTPServer(("127.0.0.1", port), WebHandler)
     server.session = session
     server.lock = threading.Lock()  # page requests arrive on different threads
+    # load the best trained model once, so other apps can call POST /api/act
+    server.obs_size = session.env.observation_space.shape[0]
+    server.policy, server.policy_algo = load_best_policy(server.obs_size, session.env.action_space.n)
 
     query = f"?mode={mode}&speed={speed}&mute={int(mute)}"
     url = f"http://localhost:{port}/{query}"
     print(f"3D view running at {url}")
     print("Press Ctrl+C here to stop.")
+    if server.policy is not None:
+        print(f"Agent API: try it at http://localhost:{port}/docs  "
+              f"(POST /api/act, serving the {server.policy_algo} best model)")
     if open_browser:
         threading.Timer(0.5, webbrowser.open, args=[url]).start()
     try:
